@@ -25,20 +25,16 @@ jobs:
           cache: npm
           cache-dependency-path: prism-lite/package-lock.json
 
-      - name: Install
-        run: npm ci
+      - run: npm ci
         working-directory: prism-lite
 
-      - name: Build
-        run: npm run build
+      - run: npm run build
         working-directory: prism-lite
 
-      - name: Disable Jekyll
-        run: touch dist/.nojekyll
+      - run: touch dist/.nojekyll
         working-directory: prism-lite
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: prism-lite/dist
 
@@ -48,4 +44,4 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5
