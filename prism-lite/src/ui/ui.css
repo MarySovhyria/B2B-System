@@ -1,0 +1,44 @@
+:root {
+  --bg: #ffffff;
+  --text: #111;
+  --muted: #666;
+  --border: #e6e6e6;
+
+  --radius: 12px;
+
+  --primary: #111;
+  --danger: #d33;
+}
+
+.ui-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.ui-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ui-col {
+  display: grid;
+  gap: 8px;
+}
+
+.ui-label {
+  font-weight: 600;
+}
+.ui-help {
+  color: var(--muted);
+  font-size: 13px;
+}
+.ui-error {
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.ui-focus:focus {
+  outline: 3px solid rgba(0, 0, 0, 0.15);
+  outline-offset: 2px;
+}
