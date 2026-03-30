@@ -1,7 +1,7 @@
 import { useMemo, useState, type FormEvent } from "react";
-import { Button, EmptyState, Input, Modal, useToast } from "@/ui";
-import { track } from "@/lib/analytics";
-import { SurveyPrompt } from "@/ui/SurveyPrompt";
+import { Button, EmptyState, Input, Modal, useToast } from "../../ui";
+import { track } from "../../lib/analytics";
+import { SurveyPrompt } from "../../ui/SurveyPrompt";
 import { useCallback } from "react";
 
 type Role = "Viewer" | "Editor" | "Admin";

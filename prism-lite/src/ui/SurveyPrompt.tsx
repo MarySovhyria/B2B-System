@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Modal } from "@/ui/Modal";
-import { Button } from "@/ui/Button";
-import { track } from "@/lib/analytics";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { track } from "../lib/analytics";
 
 type Score = 1 | 2 | 3 | 4 | 5;
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { track } from "@/lib/analytics";
+import { track } from "../../lib/analytics";
 
 type Role = "Viewer" | "Editor" | "Admin";
 type Status = "Active" | "Invited";

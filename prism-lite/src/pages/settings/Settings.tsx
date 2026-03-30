@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import OldSettings from "./OldSettings";
 import NewSettings from "./NewSettings";
-import { useNewPrismUIFlag } from "@/lib/flags"; // optional if you're using PostHog flags
+import { useNewPrismUIFlag } from "../../lib/flags"; // optional if you're using PostHog flags
 
 export default function Settings() {
   const location = useLocation();

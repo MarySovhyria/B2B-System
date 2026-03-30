@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import OldUsers from "./OldUsers";
 import NewUsers from "./NewUsers";
-import { useNewPrismUIFlag } from "@/lib/flags"; // optional if you're using PostHog flags
+import { useNewPrismUIFlag } from "@/lib/flags";
 
 export default function Users() {
   const location = useLocation();

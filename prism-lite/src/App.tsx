@@ -1,7 +1,7 @@
 import { NavLink, Route, Routes, Navigate } from "react-router-dom";
-import Users from "@/pages/users/Users";
-import Settings from "@/pages/settings/Settings";
-import { usePageViews } from "@/lib/usePageViews";
+import Users from "./pages/users/Users";
+import Settings from "./pages/settings/Settings";
+import { usePageViews } from "./lib/usePageViews";
 import { Link, useLocation } from "react-router-dom";
 
 const linkStyle = ({ isActive }: { isActive: boolean }) => ({
