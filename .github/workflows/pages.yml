@@ -2,7 +2,7 @@ name: Deploy Vite to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 permissions:
   contents: read
@@ -23,14 +23,24 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: prism-lite/package-lock.json
 
-      - run: npm ci
-      - run: npm run build
-      - run: touch dist/.nojekyll
+      - name: Install
+        run: npm ci
+        working-directory: prism-lite
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Build
+        run: npm run build
+        working-directory: prism-lite
+
+      - name: Disable Jekyll
+        run: touch dist/.nojekyll
+        working-directory: prism-lite
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: prism-lite/dist
 
   deploy:
     needs: build
