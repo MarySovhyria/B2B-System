@@ -6,7 +6,7 @@ A small B2B admin app built to demonstrate **UX Engineering** work:
 - Old vs New UI shipped behind a flag/override
 - validation via analytics + session replay + micro-survey (PostHog)
 
-## What this demonstrates (matches UX Engineer responsibilities)
+## What this demonstrates 
 - Implement scoped UX improvements across multiple product surfaces (Users + Settings)
 - Create / evolve shared UI components (Button, Input, Modal, Toast, EmptyState)
 - Ship changes behind a flag (Old vs New) for safe rollout
