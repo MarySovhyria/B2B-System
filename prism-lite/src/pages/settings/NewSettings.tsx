@@ -57,26 +57,7 @@ export default function NewSettings() {
 
   return (
     <div style={{ padding: 24, maxWidth: 720 }}>
-      {/* New UI banner */}
-      <div
-        style={{
-          marginBottom: 12,
-          padding: "8px 10px",
-          border: "1px solid #111",
-          borderRadius: 10,
-          background: "white",
-          fontSize: 12,
-        }}
-      >
-        New Prism UI (shared components + toast feedback)
-      </div>
-
       <h1 style={{ marginTop: 0 }}>Settings</h1>
-      <p style={{ color: "#555", marginTop: 8 }}>
-        Consistent form patterns and feedback (Button/Input/Toast) across the
-        platform.
-      </p>
-
       <form onSubmit={onSave} style={{ display: "grid", gap: 16 }}>
         <Input
           id="workspaceName"

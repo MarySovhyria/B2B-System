@@ -386,9 +386,6 @@ export default function OldUsers() {
             >
               <div>
                 <div style={{ fontWeight: 700, fontSize: 16 }}>Invite user</div>
-                <div style={{ color: "#888", fontSize: 12, marginTop: 4 }}>
-                  This form is a bit… old.
-                </div>
               </div>
 
               <button
@@ -530,8 +527,8 @@ export default function OldUsers() {
             </form>
 
             <div style={{ marginTop: 10, fontSize: 11, color: "#999" }}>
-              Tip: In the New UI, modal + validation + feedback are consistent
-              across pages.
+              In the New UI, modal + validation + feedback are consistent across
+              pages.
             </div>
           </div>
         </div>

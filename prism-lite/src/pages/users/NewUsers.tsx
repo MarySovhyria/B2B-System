@@ -1,6 +1,8 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { Button, EmptyState, Input, Modal, useToast } from "@/ui";
 import { track } from "@/lib/analytics";
+import { SurveyPrompt } from "@/ui/SurveyPrompt";
+import { useCallback } from "react";
 
 type Role = "Viewer" | "Editor" | "Admin";
 type Status = "Active" | "Invited";
@@ -53,6 +55,7 @@ export default function NewUsers() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<Role>("Viewer");
   const [submitting, setSubmitting] = useState(false);
+  const [surveyOpen, setSurveyOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -112,6 +115,9 @@ export default function NewUsers() {
 
       track("invite_submitted", { ui, success: true });
       push({ type: "success", message: "Invite sent." });
+
+      track("survey_shown", { context: "invite", ui });
+      setSurveyOpen(true);
     } catch {
       track("invite_submitted", { ui, success: false, reason: "exception" });
       push({ type: "error", message: "Invite failed. Try again." });
@@ -119,6 +125,7 @@ export default function NewUsers() {
       setSubmitting(false);
     }
   }
+  const closeInvite = useCallback(() => setInviteOpen(false), []);
 
   return (
     <div style={{ padding: 24 }}>
@@ -280,14 +287,10 @@ export default function NewUsers() {
         open={inviteOpen}
         title="Invite user"
         description="They’ll receive an email invitation."
-        onClose={() => setInviteOpen(false)}
+        onClose={closeInvite}
         footer={
           <>
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={() => setInviteOpen(false)}
-            >
+            <Button variant="secondary" type="button" onClick={closeInvite}>
               Cancel
             </Button>
             <Button loading={submitting} type="submit" form="invite-form">
@@ -336,6 +339,12 @@ export default function NewUsers() {
           </div>
         </form>
       </Modal>
+      <SurveyPrompt
+        open={surveyOpen}
+        onClose={() => setSurveyOpen(false)}
+        context="invite"
+        ui="new"
+      />
     </div>
   );
 }
