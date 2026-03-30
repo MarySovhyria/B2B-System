@@ -1,6 +1,7 @@
 import { NavLink, Route, Routes, Navigate } from "react-router-dom";
-import Users from "@/pages/Users";
-import Settings from "@/pages/Settings";
+import Users from "@/pages/users/Users";
+import Settings from "@/pages/settings/Settings";
+import { usePageViews } from "@/lib/usePageViews";
 
 const linkStyle = ({ isActive }: { isActive: boolean }) => ({
   padding: "8px 12px",
@@ -11,6 +12,7 @@ const linkStyle = ({ isActive }: { isActive: boolean }) => ({
 });
 
 export default function App() {
+  usePageViews();
   return (
     <div
       style={{

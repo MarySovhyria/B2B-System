@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { track } from "@/lib/analytics";
 
 type Role = "Viewer" | "Editor" | "Admin";
 type Status = "Active" | "Invited";
@@ -15,7 +16,7 @@ function makeId() {
   return Math.random().toString(16).slice(2);
 }
 
-export default function Users() {
+export default function OldUsers() {
   const [users, setUsers] = useState<User[]>([
     {
       id: makeId(),
@@ -61,9 +62,7 @@ export default function Users() {
         !q ||
         u.name.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q);
-
       const matchesRole = roleFilter === "All" ? true : u.role === roleFilter;
-
       return matchesQuery && matchesRole;
     });
   }, [users, query, roleFilter]);
@@ -76,18 +75,26 @@ export default function Users() {
 
   async function submitInvite(e: React.FormEvent) {
     e.preventDefault();
-    setMessage(null);
 
+    // Legacy UI: keeps old message visible until next action
+    // (so we don’t clear it here)
     if (inviteEmailError) {
       setMessage({ type: "error", text: inviteEmailError });
+      track("invite_submitted", {
+        ui: "old",
+        success: false,
+        reason: "validation",
+      });
       return;
     }
 
     try {
       setSubmitting(true);
 
-      // Fake request delay
-      await new Promise((res) => setTimeout(res, 600));
+      // (intentionally odd) we track success before the “API call”
+      track("invite_submitted", { ui: "old", success: true });
+
+      await new Promise((res) => setTimeout(res, 700));
 
       const newUser: User = {
         id: makeId(),
@@ -105,85 +112,129 @@ export default function Users() {
       setInviteRole("Viewer");
       setInviteOpen(false);
 
-      setMessage({ type: "success", text: "Invite sent." });
-      setTimeout(() => setMessage(null), 1500);
+      setMessage({ type: "success", text: "Invite sent (check email)." });
+
+      // NOTE: no auto-dismiss on purpose
     } catch {
-      setMessage({ type: "error", text: "Invite failed. Try again." });
+      setMessage({ type: "error", text: "Invite failed. Try again later." });
+      track("invite_submitted", {
+        ui: "old",
+        success: false,
+        reason: "exception",
+      });
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div style={{ padding: 24 }}>
+    <div
+      style={{
+        padding: 18,
+        fontFamily: "Georgia, serif",
+        background: "#f5f5f5",
+        minHeight: "100vh",
+      }}
+    >
+      {/* Old UI banner */}
+      <div
+        style={{
+          marginBottom: 10,
+          padding: "6px 8px",
+          border: "2px dotted #999",
+          background: "#fff",
+          color: "#444",
+          fontSize: 12,
+        }}
+      >
+        Old UI (intentionally inconsistent / legacy)
+      </div>
+
       <div
         style={{
           display: "flex",
           alignItems: "flex-start",
           justifyContent: "space-between",
-          gap: 16,
+          gap: 12,
+          background: "#fff",
+          border: "1px solid #cfcfcf",
+          padding: 12,
         }}
       >
         <div>
-          <h1 style={{ margin: 0 }}>Users</h1>
-          <p style={{ marginTop: 8, color: "#555" }}>
+          <h1 style={{ margin: 0, fontSize: 26, letterSpacing: "-0.3px" }}>
+            Users
+          </h1>
+          <p style={{ marginTop: 6, color: "#777", fontSize: 13 }}>
             Manage access to your workspace.
           </p>
         </div>
 
+        {/* Inconsistent CTA: small, sharp, blue */}
         <button
-          onClick={() => setInviteOpen(true)}
+          onClick={() => {
+            track("invite_opened", { ui: "old" });
+            setInviteOpen(true);
+          }}
           style={{
-            padding: "10px 14px",
-            borderRadius: 10,
-            border: "1px solid #111",
-            background: "#111",
+            padding: "6px 10px",
+            borderRadius: 3,
+            border: "1px solid #1b66ff",
+            background: "#1b66ff",
             color: "white",
             cursor: "pointer",
-            height: 40,
+            height: 30,
+            fontSize: 13,
           }}
         >
           Invite user
         </button>
       </div>
 
+      {/* Clunky message: same color for success/error, not dismissible */}
       {message && (
         <div
           style={{
-            marginTop: 12,
-            padding: "10px 12px",
-            borderRadius: 10,
-            background: message.type === "success" ? "#e8f7ee" : "#fdecec",
-            border:
-              message.type === "success"
-                ? "1px solid #bfe8cc"
-                : "1px solid #f2b8b8",
-            color: "#111",
-            maxWidth: 520,
+            marginTop: 10,
+            padding: 10,
+            borderRadius: 2,
+            background: "#fffbe6",
+            border: "1px solid #e0d48a",
+            color: "#333",
+            maxWidth: 700,
+            fontSize: 13,
           }}
         >
+          <strong style={{ marginRight: 6 }}>
+            {message.type === "success" ? "OK:" : "Error:"}
+          </strong>
           {message.text}
         </div>
       )}
 
+      {/* Filters box with inconsistent styling */}
       <div
         style={{
+          marginTop: 12,
+          background: "#fff",
+          border: "1px solid #d0d0d0",
+          padding: 10,
           display: "flex",
-          gap: 12,
+          gap: 10,
           alignItems: "center",
-          marginTop: 16,
           flexWrap: "wrap",
         }}
       >
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search name or email…"
+          placeholder="Search…"
           style={{
-            padding: "10px 12px",
-            borderRadius: 10,
-            border: "1px solid #ccc",
-            width: 320,
+            padding: "6px 8px",
+            borderRadius: 2,
+            border: "2px solid #ddd",
+            width: 260,
+            fontSize: 13,
           }}
         />
 
@@ -191,10 +242,12 @@ export default function Users() {
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value as any)}
           style={{
-            padding: "10px 12px",
-            borderRadius: 10,
-            border: "1px solid #ccc",
-            background: "white",
+            padding: "6px 8px",
+            borderRadius: 16,
+            border: "1px solid #aaa",
+            background: "#f2f2f2",
+            height: 32,
+            fontSize: 13,
           }}
         >
           <option value="All">All roles</option>
@@ -203,35 +256,31 @@ export default function Users() {
           <option value="Admin">Admin</option>
         </select>
 
-        <div style={{ color: "#666" }}>
+        <div style={{ color: "#888", fontSize: 12 }}>
           Showing <strong>{filtered.length}</strong> of{" "}
           <strong>{users.length}</strong>
         </div>
       </div>
 
+      {/* Table: heavier borders, cramped */}
       <div
-        style={{
-          marginTop: 16,
-          border: "1px solid #eee",
-          borderRadius: 12,
-          overflow: "hidden",
-        }}
+        style={{ marginTop: 12, background: "#fff", border: "2px solid #ddd" }}
       >
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#fafafa" }}>
+            <tr style={{ background: "#efefef" }}>
               {["Name", "Email", "Role", "Status"].map((h) => (
                 <th
                   key={h}
                   style={{
                     textAlign: "left",
-                    padding: "12px 14px",
-                    fontSize: 13,
+                    padding: "8px 10px",
+                    fontSize: 12,
                     color: "#555",
-                    borderBottom: "1px solid #eee",
+                    borderBottom: "2px solid #d5d5d5",
                   }}
                 >
-                  {h}
+                  {h.toUpperCase()}
                 </th>
               ))}
             </tr>
@@ -240,8 +289,11 @@ export default function Users() {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={4} style={{ padding: 18, color: "#666" }}>
-                  No users match your search.
+                <td
+                  colSpan={4}
+                  style={{ padding: 12, color: "#999", fontStyle: "italic" }}
+                >
+                  Nothing here. Try a different search.
                 </td>
               </tr>
             ) : (
@@ -249,42 +301,44 @@ export default function Users() {
                 <tr key={u.id}>
                   <td
                     style={{
-                      padding: "12px 14px",
-                      borderBottom: "1px solid #f2f2f2",
+                      padding: "8px 10px",
+                      borderBottom: "1px solid #eee",
                     }}
                   >
                     {u.name}
                   </td>
                   <td
                     style={{
-                      padding: "12px 14px",
-                      borderBottom: "1px solid #f2f2f2",
+                      padding: "8px 10px",
+                      borderBottom: "1px solid #eee",
                     }}
                   >
                     {u.email}
                   </td>
                   <td
                     style={{
-                      padding: "12px 14px",
-                      borderBottom: "1px solid #f2f2f2",
+                      padding: "8px 10px",
+                      borderBottom: "1px solid #eee",
                     }}
                   >
                     {u.role}
                   </td>
                   <td
                     style={{
-                      padding: "12px 14px",
-                      borderBottom: "1px solid #f2f2f2",
+                      padding: "8px 10px",
+                      borderBottom: "1px solid #eee",
                     }}
                   >
+                    {/* Status chip is inconsistent and low contrast */}
                     <span
                       style={{
-                        padding: "3px 10px",
-                        borderRadius: 999,
+                        padding: "2px 6px",
+                        borderRadius: 4,
                         fontSize: 12,
-                        border: "1px solid #ddd",
                         background:
-                          u.status === "Active" ? "#eef7ff" : "#fff6e5",
+                          u.status === "Active" ? "#e9e9e9" : "#f1f1f1",
+                        border: "1px solid #d8d8d8",
+                        color: "#666",
                       }}
                     >
                       {u.status}
@@ -297,30 +351,30 @@ export default function Users() {
         </table>
       </div>
 
-      {/* Basic modal (later replace with your UI Modal component) */}
+      {/* Legacy modal: no click-outside close, no ESC, inconsistent controls */}
       {inviteOpen && (
         <div
-          onMouseDown={() => setInviteOpen(false)}
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0,0,0,0.35)",
+            background: "rgba(0,0,0,0.55)",
             display: "grid",
             placeItems: "center",
             padding: 16,
+            zIndex: 20,
           }}
         >
           <div
-            onMouseDown={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
             style={{
               width: "100%",
               maxWidth: 520,
-              background: "white",
-              borderRadius: 14,
-              padding: 16,
-              border: "1px solid #eee",
+              background: "#fff",
+              borderRadius: 0, // harsh
+              padding: 14,
+              border: "3px solid #222",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.35)",
             }}
           >
             <div
@@ -332,33 +386,37 @@ export default function Users() {
             >
               <div>
                 <div style={{ fontWeight: 700, fontSize: 16 }}>Invite user</div>
-                <div style={{ color: "#666", fontSize: 13, marginTop: 4 }}>
-                  They’ll receive an email invitation.
+                <div style={{ color: "#888", fontSize: 12, marginTop: 4 }}>
+                  This form is a bit… old.
                 </div>
               </div>
 
               <button
                 onClick={() => setInviteOpen(false)}
                 style={{
-                  border: "1px solid #ddd",
-                  background: "white",
-                  borderRadius: 10,
-                  padding: "8px 10px",
+                  border: "1px solid #999",
+                  background: "#f3f3f3",
+                  borderRadius: 0,
+                  padding: "6px 8px",
                   cursor: "pointer",
-                  height: 36,
+                  height: 30,
+                  fontSize: 12,
                 }}
               >
-                Close
+                X
               </button>
             </div>
 
             <form
               onSubmit={submitInvite}
-              style={{ display: "grid", gap: 12, marginTop: 14 }}
+              style={{ display: "grid", gap: 10, marginTop: 12 }}
             >
-              <div style={{ display: "grid", gap: 6 }}>
-                <label style={{ fontWeight: 600 }} htmlFor="inviteName">
-                  Name (optional)
+              <div style={{ display: "grid", gap: 4 }}>
+                <label
+                  style={{ fontWeight: 600, fontSize: 12 }}
+                  htmlFor="inviteName"
+                >
+                  Full name
                 </label>
                 <input
                   id="inviteName"
@@ -366,16 +424,20 @@ export default function Users() {
                   onChange={(e) => setInviteName(e.target.value)}
                   placeholder="Jane Doe"
                   style={{
-                    padding: "10px 12px",
-                    borderRadius: 10,
-                    border: "1px solid #ccc",
+                    padding: "8px 8px",
+                    borderRadius: 2,
+                    border: "1px solid #bbb",
+                    fontSize: 13,
                   }}
                 />
               </div>
 
-              <div style={{ display: "grid", gap: 6 }}>
-                <label style={{ fontWeight: 600 }} htmlFor="inviteEmail">
-                  Email
+              <div style={{ display: "grid", gap: 4 }}>
+                <label
+                  style={{ fontWeight: 600, fontSize: 12 }}
+                  htmlFor="inviteEmail"
+                >
+                  Email address
                 </label>
                 <input
                   id="inviteEmail"
@@ -383,33 +445,37 @@ export default function Users() {
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="jane@acme.com"
                   style={{
-                    padding: "10px 12px",
-                    borderRadius: 10,
-                    border: inviteEmailError
-                      ? "1px solid #d33"
-                      : "1px solid #ccc",
+                    padding: "8px 8px",
+                    borderRadius: 2,
+                    border: "1px solid #bbb", // intentionally NOT red even when invalid
+                    fontSize: 13,
                   }}
                 />
                 {inviteEmailError && (
-                  <div style={{ color: "#d33", fontSize: 13 }}>
+                  <div style={{ color: "#b00020", fontSize: 12 }}>
                     {inviteEmailError}
                   </div>
                 )}
               </div>
 
-              <div style={{ display: "grid", gap: 6 }}>
-                <label style={{ fontWeight: 600 }} htmlFor="inviteRole">
-                  Role
+              <div style={{ display: "grid", gap: 4 }}>
+                <label
+                  style={{ fontWeight: 600, fontSize: 12 }}
+                  htmlFor="inviteRole"
+                >
+                  Permission
                 </label>
                 <select
                   id="inviteRole"
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value as Role)}
                   style={{
-                    padding: "10px 12px",
-                    borderRadius: 10,
-                    border: "1px solid #ccc",
-                    background: "white",
+                    padding: "8px 8px",
+                    borderRadius: 2,
+                    border: "2px solid #ddd",
+                    background: "#fff",
+                    height: 34,
+                    fontSize: 13,
                   }}
                 >
                   <option value="Viewer">Viewer</option>
@@ -421,41 +487,52 @@ export default function Users() {
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "flex-end",
-                  gap: 10,
-                  marginTop: 4,
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: 6,
                 }}
               >
+                {/* Cancel as link-style, different from other buttons */}
                 <button
                   type="button"
                   onClick={() => setInviteOpen(false)}
                   style={{
-                    padding: "10px 14px",
-                    borderRadius: 10,
-                    border: "1px solid #ddd",
-                    background: "white",
+                    padding: 0,
+                    border: "none",
+                    background: "transparent",
+                    color: "#1b66ff",
+                    textDecoration: "underline",
                     cursor: "pointer",
+                    fontSize: 13,
                   }}
                 >
                   Cancel
                 </button>
 
+                {/* Submit as green pill, totally different style */}
                 <button
                   type="submit"
                   disabled={submitting}
                   style={{
-                    padding: "10px 14px",
-                    borderRadius: 10,
-                    border: "1px solid #111",
-                    background: submitting ? "#777" : "#111",
+                    padding: "10px 16px",
+                    borderRadius: 999,
+                    border: "none",
+                    background: submitting ? "#9ad7a5" : "#22a447",
                     color: "white",
                     cursor: submitting ? "not-allowed" : "pointer",
+                    fontWeight: 700,
+                    fontSize: 13,
                   }}
                 >
                   {submitting ? "Sending..." : "Send invite"}
                 </button>
               </div>
             </form>
+
+            <div style={{ marginTop: 10, fontSize: 11, color: "#999" }}>
+              Tip: In the New UI, modal + validation + feedback are consistent
+              across pages.
+            </div>
           </div>
         </div>
       )}
