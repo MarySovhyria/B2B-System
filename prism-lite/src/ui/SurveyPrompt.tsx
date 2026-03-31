@@ -81,7 +81,6 @@ export function SurveyPrompt({
           onChange={(e) => setComment(e.target.value)}
           placeholder="What (if anything) was confusing?"
           style={{
-            width: "100%",
             minHeight: 90,
             padding: 10,
             borderRadius: 10,
