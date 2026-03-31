@@ -64,14 +64,10 @@ After successful invite/save:
 
 ---
 
-## Results (screenshots)
-Add:
-1) Old Users vs New Users screenshots
-2) Old Settings vs New Settings screenshots
-3) PostHog Live Events screenshot showing event properties (`ui`)
-4) One Replay screenshot (Old vs New)
-
-(If you have enough data, include a small comparison chart or funnel split by `ui`.)
+## Results (see screenshots in the images folder)
+1) Old Users vs New Users 
+2) Old Settings vs New Settings 
+3) PostHog Live Events tracking 
 
 ---
 
@@ -80,8 +76,3 @@ Add:
 - Behind-a-flag rollout supports incremental adoption across surfaces.
 - Combining analytics + replay + micro-survey provides stronger evidence than one signal alone.
 
-## Next steps
-- Storybook documentation for Prism-lite components
-- Tokenize spacing/typography/colors to remove inline styles
-- Accessibility improvements (full focus trap, ARIA polish)
-- Add an experiment dashboard/funnel comparing Old vs New outcomes
